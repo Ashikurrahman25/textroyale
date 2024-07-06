@@ -175,6 +175,39 @@ app.post('/claim', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(500).json({ error: error.message });
     }
 }));
+const botToken = '6541421797:AAH6VJiuKo_RREGj6g9IMOi0gjOBDGgTFf8';
+app.post('/sendMessage', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { chatId, message, threadId } = req.body;
+    if (!chatId || !message || !threadId) {
+        return res.status(400).send('chatId, message, and threadId are required');
+    }
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const data = {
+        chat_id: chatId,
+        text: message,
+        message_thread_id: threadId,
+        parse_mode: 'HTML',
+    };
+    try {
+        const response = yield fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        const result = yield response.json();
+        if (result.ok) {
+            res.status(200).json('Message sent successfully');
+        }
+        else {
+            res.status(500).json(`Error sending message: ${result.description}`);
+        }
+    }
+    catch (error) {
+        res.status(500).json(`Error: ${error.message}`);
+    }
+}));
 const port = process.env.PORT || 9000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
